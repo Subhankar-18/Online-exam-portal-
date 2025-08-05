@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3001") // Allow frontend to access
+@CrossOrigin(origins = "http://localhost:3000") // Allow frontend to access
 public class LoginController {
 
     @Autowired

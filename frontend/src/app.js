@@ -1,11 +1,16 @@
 import React from 'react';
-import Login from './login'; 
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginForm from './login';
+import AdminPage from './AdminPage';
 
 function App() {
   return (
-    <div>
-      <Login/>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginForm />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </Router>
   );
 }
 
