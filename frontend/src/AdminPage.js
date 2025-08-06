@@ -32,7 +32,7 @@ function AdminPage() {
       {/* Header Navbar */}
       <nav className="navbar navbar-expand-lg" style={{ backgroundColor: '#000' }}>
         <div className="container-fluid">
-          <a className="navbar-brand text-white" href="#">Hello Admin!</a>
+          <span className="navbar-brand text-white">Hello Admin!</span>
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
@@ -40,13 +40,13 @@ function AdminPage() {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <a className="nav-link text-white" href="#">Dashboard</a>
+                <button className="nav-link btn btn-link text-white" onClick={() => navigate('/')}>Dashboard</button>
               </li>
               <li className="nav-item">
-                <a className="nav-link text-white" href="#">Courses</a>
+                <button className="nav-link btn btn-link text-white" onClick={() => navigate('/courses')}>Courses</button>
               </li>
               <li className="nav-item">
-                <a className="nav-link text-white" href="#">Users</a>
+                <button className="nav-link btn btn-link text-white" onClick={() => navigate('/users')}>Users</button>
               </li>
             </ul>
             <button className="btn btn-light" onClick={handleLogout}>Logout</button>
@@ -58,20 +58,16 @@ function AdminPage() {
         {/* Sidebar */}
         <nav className="col-md-3 col-lg-2" style={sidebarStyle}>
           <ul className="nav flex-column">
-            <li className="nav-item"><a className="nav-link active text-white" href="#">Dashboard</a></li>
-            <li className="nav-item"><a className="nav-link text-white" href="#">Manage Users</a></li>
-            <li className="nav-item"><a className="nav-link text-white" href="#">Courses</a></li>
-            <li className="nav-item"><a className="nav-link text-white" href="#">Reports</a></li>
-            <li className="nav-item"><a className="nav-link text-white" href="#">Settings</a></li>
+            <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/')}>Dashboard</button></li>
+            <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/users')}>Manage Users</button></li>
+            <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/courses')}>Courses</button></li>
+            <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/reports')}>Reports</button></li>
+            <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/settings')}>Settings</button></li>
           </ul>
         </nav>
 
         {/* Main Content */}
-        <main 
-        className="col-md-9 ms-sm-auto col-lg-10 px-4 py-3"
-  style={{ backgroundColor: '#d2f4ea' }}
->
-  
+        <main className="col-md-9 ms-sm-auto col-lg-10 px-4 py-3" style={{ backgroundColor: '#d2f4ea' }}>
           <h4>Welcome, Admin!</h4>
           <p>This is your dashboard overview.</p>
 
@@ -81,7 +77,7 @@ function AdminPage() {
               <div className="card p-3">
                 <h5 className="card-title">Students</h5>
                 <p className="card-text">View and manage registered students and their progress.</p>
-                <button className="btn btn-primary">Manage Students</button>
+                <button className="btn btn-primary" onClick={() => navigate('/students')}>Manage Students</button>
               </div>
             </div>
 
@@ -90,7 +86,7 @@ function AdminPage() {
               <div className="card p-3">
                 <h5 className="card-title">Teachers</h5>
                 <p className="card-text">Manage teacher profiles, schedules, and responsibilities.</p>
-                <button className="btn btn-primary">Manage Teachers</button>
+                <button className="btn btn-primary" onClick={() => navigate('/teachers')}>Manage Teachers</button>
               </div>
             </div>
 
@@ -99,7 +95,7 @@ function AdminPage() {
               <div className="card p-3">
                 <h5 className="card-title">Courses</h5>
                 <p className="card-text">Add, update, or remove courses available on the platform.</p>
-                <button className="btn btn-primary">Manage Courses</button>
+                <button className="btn btn-primary" onClick={() => navigate('/courses')}>Manage Courses</button>
               </div>
             </div>
           </div>

@@ -2,6 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginForm from './login';
 import AdminPage from './AdminPage';
+import StudentPage from './StudentPage';
+import TeacherPage from './TeacherPage';
+import CoursePage from './CoursePage';
 
 function App() {
   return (
@@ -9,6 +12,9 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginForm />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/students" element={<StudentPage />} />
+        <Route path="/teachers" element={<TeacherPage />} />
+        <Route path="/courses" element={<CoursePage />} />
       </Routes>
     </Router>
   );
