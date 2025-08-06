@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // ✅ import useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
-  const navigate = useNavigate(); // ✅ use navigate
+  const navigate = useNavigate(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +21,6 @@ function LoginForm() {
       console.log('Login successful:', response.data);
       
 
-      // ✅ Navigate based on role
       if (role === 'ADMIN') {
         navigate('/admin');
       } 
