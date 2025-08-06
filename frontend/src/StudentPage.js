@@ -1,47 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const initialData = {
-  "Math": [
-    { id: 1, name: "Alice", email: "alice@example.com" },
-  ],
-  "Science": [
-    { id: 2, name: "Bob", email: "bob@example.com" },
-  ]
-};
-
 function StudentPage() {
-  const [studentsByCourse, setStudentsByCourse] = useState(initialData);
-  const [newStudent, setNewStudent] = useState({ name: '', email: '', id: '' });
-  const [editMode, setEditMode] = useState({}); // { course: id }
+  const [studentsByCourse, setStudentsByCourse] = useState({});
+  const [newStudent, setNewStudent] = useState({ name: '', email: '', id: '', course: '' });
+  const [editMode, setEditMode] = useState({});
 
-  const handleAddStudent = (course) => {
+  // Fetch students grouped by course
+  const fetchStudents = async () => {
+    const res = await axios.get('http://localhost:8080/api/students/by-course');
+    setStudentsByCourse(res.data);
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const handleAddStudent = async (course) => {
     if (!newStudent.name || !newStudent.email || !newStudent.id) return;
 
-    const updated = { ...studentsByCourse };
-    updated[course].push({
+    const payload = {
       id: newStudent.id,
       name: newStudent.name,
       email: newStudent.email,
-    });
+      course: course
+    };
 
-    setStudentsByCourse(updated);
-    setNewStudent({ name: '', email: '', id: '' });
+    await axios.post('http://localhost:8080/api/students', payload);
+    fetchStudents(); // refresh
+    setNewStudent({ name: '', email: '', id: '', course: '' });
   };
 
-  const handleDelete = (course, id) => {
-    const updated = { ...studentsByCourse };
-    updated[course] = updated[course].filter(student => student.id !== id);
-    setStudentsByCourse(updated);
+  const handleDelete = async (id) => {
+    await axios.delete(`http://localhost:8080/api/students/${id}`);
+    fetchStudents();
   };
 
-  const handleUpdate = (course, id, updatedStudent) => {
-    const updated = { ...studentsByCourse };
-    updated[course] = updated[course].map(student =>
-      student.id === id ? { ...student, ...updatedStudent } : student
-    );
-    setStudentsByCourse(updated);
-    setEditMode({}); // exit edit mode
+  const handleUpdate = async (id, updatedStudent) => {
+    await axios.put(`http://localhost:8080/api/students/${id}`, updatedStudent);
+    fetchStudents();
+    setEditMode({});
   };
 
   return (
@@ -86,9 +85,10 @@ function StudentPage() {
                         <button
                           className="btn btn-success btn-sm me-2"
                           onClick={() =>
-                            handleUpdate(course, stu.id, {
+                            handleUpdate(stu.id, {
                               name: stu.editName || stu.name,
-                              email: stu.editEmail || stu.email
+                              email: stu.editEmail || stu.email,
+                              course: course
                             })
                           }
                         >
@@ -115,7 +115,7 @@ function StudentPage() {
                         </button>
                         <button
                           className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(course, stu.id)}
+                          onClick={() => handleDelete(stu.id)}
                         >
                           Delete
                         </button>
