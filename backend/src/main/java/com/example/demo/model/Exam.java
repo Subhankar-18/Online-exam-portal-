@@ -1,18 +1,18 @@
 package com.example.demo.model;
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 
-@Entity
 @Data
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Exam {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String examTitle;
+    private String Title;
 
     @ManyToOne
     @JoinColumn(name = "teacher_id")
