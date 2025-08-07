@@ -59,10 +59,9 @@ function AdminPage() {
         <nav className="col-md-3 col-lg-2" style={sidebarStyle}>
           <ul className="nav flex-column">
             <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/')}>Dashboard</button></li>
-            <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/users')}>Manage Users</button></li>
+            <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/teachers')}>Manage Users</button></li>
             <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/courses')}>Courses</button></li>
             <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/reports')}>Reports</button></li>
-            <li className="nav-item"><button className="nav-link btn btn-link text-white" onClick={() => navigate('/settings')}>Settings</button></li>
           </ul>
         </nav>
 

@@ -1,29 +1,35 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Login form submitted with", { email, password, role });
+
     try {
-      const response = await axios.post('http://localhost:8080/api/login', {
+      const response = await axios.post('http://localhost:8081/api/login', {
         email,
         password,
         role
       });
 
       console.log('Login successful:', response.data);
-      
 
+      // Redirect based on role
       if (role === 'ADMIN') {
         navigate('/admin');
-      } 
+      } else if (role === 'STUDENT') {
+        navigate('/studentdashboard');
+      } else if (role === 'INSTRUCTOR') {
+        navigate('/teacherdashboard');
+      }
     } catch (error) {
       console.error('Login failed:', error.response?.data || error.message);
     }
@@ -34,7 +40,12 @@ function LoginForm() {
       <form
         onSubmit={handleSubmit}
         className="card p-4 shadow"
-        style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', width: '100%', maxWidth: '400px', borderRadius: '10px' }}
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          width: '100%',
+          maxWidth: '400px',
+          borderRadius: '10px'
+        }}
       >
         <h2 className="text-white text-center mb-4">Login</h2>
 
@@ -46,7 +57,7 @@ function LoginForm() {
 
         <div className="mb-3">
           <label htmlFor="password" className="form-label text-white">Password</label>
-          <input type="password" className="form-control" id="password" aria-describedby="passwordHelpBlock"
+          <input type="password" className="form-control" id="password"
             value={password} onChange={(e) => setPassword(e.target.value)} required />
           <div id="passwordHelpBlock" className="form-text text-light">
             Your password must be 8–20 characters, contain letters and numbers, and no special characters.
@@ -57,7 +68,7 @@ function LoginForm() {
           <label htmlFor="role" className="form-label text-white">Select Role</label>
           <select className="form-select" id="role"
             value={role} onChange={(e) => setRole(e.target.value)} required>
-            <option value="">Open this select menu </option>
+            <option value="">Open this select menu</option>
             <option value="STUDENT">Student</option>
             <option value="INSTRUCTOR">Instructor</option>
             <option value="ADMIN">Admin</option>

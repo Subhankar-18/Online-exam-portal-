@@ -42,4 +42,3 @@ public class StudentController {
         studentService.deleteStudent(id);
     }
 }
-

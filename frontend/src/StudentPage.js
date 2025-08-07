@@ -3,56 +3,55 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function StudentPage() {
-  const [studentsByCourse, setStudentsByCourse] = useState({});
-  const [newStudent, setNewStudent] = useState({ name: '', email: '', id: '', course: '' });
-  const [editMode, setEditMode] = useState({});
+const [studentsByCourse, setStudentsByCourse] = useState({});
+const [newStudent, setNewStudent] = useState({ name: '', email: '', course: '' });
+const [editMode, setEditMode] = useState({});
 
   // Fetch students grouped by course
-  const fetchStudents = async () => {
-    const res = await axios.get('http://localhost:8080/api/students/by-course');
+const fetchStudents = async () => {
+    const res = await axios.get('http://localhost:8081/api/students/by-course');
     setStudentsByCourse(res.data);
-  };
+};
 
-  useEffect(() => {
+useEffect(() => {
     fetchStudents();
-  }, []);
+}, []);
 
-  const handleAddStudent = async (course) => {
-    if (!newStudent.name || !newStudent.email || !newStudent.id) return;
+const handleAddStudent = async (course) => {
+    if (!newStudent.name || !newStudent.email) return;
 
     const payload = {
-      id: newStudent.id,
-      name: newStudent.name,
-      email: newStudent.email,
-      course: course
+    name: newStudent.name,
+    email: newStudent.email,
+    course: course
     };
 
-    await axios.post('http://localhost:8080/api/students', payload);
+    await axios.post('http://localhost:8081/api/students', payload);
     fetchStudents(); // refresh
-    setNewStudent({ name: '', email: '', id: '', course: '' });
-  };
+    setNewStudent({ name: '', email: '', course: '' });
+};
 
-  const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:8080/api/students/${id}`);
+    const handleDelete = async (id) => {
+    await axios.delete(`http://localhost:8081/api/students/${id}`);
     fetchStudents();
-  };
+};
 
-  const handleUpdate = async (id, updatedStudent) => {
-    await axios.put(`http://localhost:8080/api/students/${id}`, updatedStudent);
+    const handleUpdate = async (id, updatedStudent) => {
+    await axios.put(`http://localhost:8081/api/students/${id}`, updatedStudent);
     fetchStudents();
     setEditMode({});
-  };
+};
 
-  return (
+return (
     <div className="p-4" style={{ backgroundColor: "#f3e8ff" }}>
-      <h2 className="mb-4 p-2" style={{ backgroundColor: "#6b21a8", color: "#fff" }}>
+        <h2 className="mb-4 p-2" style={{ backgroundColor: "#6b21a8", color: "#fff" }}>
         Student Details
-      </h2>
+        </h2>
 
       {Object.entries(studentsByCourse).map(([course, students]) => (
         <div key={course} className="mb-5 p-3 border rounded bg-white">
           <h4 style={{ color: "#9333ea" }}>{course}</h4>
-          
+
           <table className="table table-striped">
             <thead>
               <tr>
@@ -129,17 +128,7 @@ function StudentPage() {
 
           {/* Add Student Form for this Course */}
           <div className="row g-2 mt-3">
-            <div className="col-md-3">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="ID"
-                name="id"
-                value={newStudent.id}
-                onChange={(e) => setNewStudent({ ...newStudent, id: e.target.value })}
-              />
-            </div>
-            <div className="col-md-3">
+            <div className="col-md-4">
               <input
                 type="text"
                 className="form-control"
@@ -159,7 +148,7 @@ function StudentPage() {
                 onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
               />
             </div>
-            <div className="col-md-2">
+            <div className="col-md-4">
               <button
                 className="btn btn-success w-100"
                 onClick={() => handleAddStudent(course)}
