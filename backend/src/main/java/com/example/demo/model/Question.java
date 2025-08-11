@@ -1,13 +1,13 @@
 package com.example.demo.model;
+
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,6 +15,7 @@ public class Question {
 
     @ManyToOne
     @JoinColumn(name = "exam_id")
+    @JsonBackReference
     private Exam exam;
 
     private String questionText;

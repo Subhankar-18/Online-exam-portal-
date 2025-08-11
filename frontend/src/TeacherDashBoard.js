@@ -1,78 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function TeacherDashBoard() {
-  const [activeSection, setActiveSection] = useState('create');
+export default function TeacherDashboard() {
+  const [teacherId, setTeacherId] = useState(501); // Replace with actual logged-in teacher's ID
+  const [title, setTitle] = useState("");
   const [exams, setExams] = useState([]);
-  const [currentExam, setCurrentExam] = useState(null);
+  const [selectedExamId, setSelectedExamId] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [questionText, setQuestionText] = useState("");
+  const [optionA, setOptionA] = useState("");
+  const [optionB, setOptionB] = useState("");
+  const [optionC, setOptionC] = useState("");
+  const [optionD, setOptionD] = useState("");
+  const [correctAnswer, setCorrectAnswer] = useState("");
 
-  const [examName, setExamName] = useState('');
-  const [questionForm, setQuestionForm] = useState({
-    question: '',
-    optionA: '',
-    optionB: '',
-    optionC: '',
-    optionD: '',
-    correctAnswer: ''
-  });
-
-  const [selectedExamView, setSelectedExamView] = useState(null);
-
-  const handleCreateExam = (e) => {
-    e.preventDefault();
-    const trimmedName = examName.trim();
-    if (!trimmedName) return;
-    const examExists = exams.some(exam => exam.examName === trimmedName);
-    if (examExists) {
-      alert('Exam already exists!');
-      return;
+  // Fetch exams by teacher
+  useEffect(() => {
+    if (teacherId) {
+      axios
+        .get(`http://localhost:8081/api/teacher/exams/by-teacher/${teacherId}`)
+        .then((res) => setExams(res.data))
+        .catch((err) => console.error("Error fetching exams:", err));
     }
-    setCurrentExam({ examName: trimmedName, questions: [] });
-    setExamName('');
+  }, [teacherId]);
+
+  // Fetch questions when exam is selected
+  useEffect(() => {
+    if (selectedExamId) {
+      axios
+        .get(`http://localhost:8081/api/teacher/questions/by-exam/${selectedExamId}`)
+        .then((res) => setQuestions(res.data))
+        .catch((err) => console.error("Error fetching questions:", err));
+    }
+  }, [selectedExamId]);
+
+  // Create exam
+  const handleCreateExam = () => {
+    axios
+      .post("http://localhost:8081/api/teacher/exams/create", {
+        teacherId,
+        title,
+      })
+      .then((res) => {
+        setExams([...exams, res.data]);
+        setTitle("");
+      })
+      .catch((err) => console.error("Error creating exam:", err));
   };
 
-  const handleQuestionChange = (e) => {
-    setQuestionForm({ ...questionForm, [e.target.name]: e.target.value });
-  };
-
-  const handleAddQuestion = (e) => {
-    e.preventDefault();
-    const updatedExam = {
-      ...currentExam,
-      questions: [...currentExam.questions, questionForm]
-    };
-    setCurrentExam(updatedExam);
-    setQuestionForm({
-      question: '',
-      optionA: '',
-      optionB: '',
-      optionC: '',
-      optionD: '',
-      correctAnswer: ''
-    });
-  };
-
-  const handleEndExam = () => {
-    setExams([...exams, currentExam]);
-    setCurrentExam(null); // Reset to add another exam
+  // Add question
+  const handleAddQuestion = () => {
+    axios
+      .post("http://localhost:8081/api/teacher/questions/add", {
+        examId: selectedExamId,
+        questionText,
+        optionA,
+        optionB,
+        optionC,
+        optionD,
+        correctAnswer,
+      })
+      .then((res) => {
+        setQuestions([...questions, res.data]);
+        setQuestionText("");
+        setOptionA("");
+        setOptionB("");
+        setOptionC("");
+        setOptionD("");
+        setCorrectAnswer("");
+      })
+      .catch((err) => console.error("Error adding question:", err));
   };
 
   const handleLogout = () => {
-    alert('Logged out successfully!');
-    // Add redirect logic if needed
+    alert("Logged out successfully!");
+    // TODO: Implement logout functionality
   };
 
   const sidebarStyle = {
-    backgroundColor: '#007FFF',
-    minHeight: '100vh',
-    padding: '1rem',
-    color: 'white'
+    backgroundColor: "#007FFF",
+    minHeight: "100vh",
+    padding: "1rem",
+    color: "white"
   };
 
   const mainContentStyle = {
-    backgroundColor: '#b3e5fc',
-    minHeight: '100vh',
-    padding: '2rem'
+    backgroundColor: "#b3e5fc",
+    minHeight: "100vh",
+    padding: "2rem"
   };
 
   return (
@@ -90,177 +106,122 @@ function TeacherDashBoard() {
         <nav className="col-md-3 col-lg-2" style={sidebarStyle}>
           <ul className="nav flex-column">
             <li className="nav-item">
-              <button className="nav-link btn btn-link text-white" onClick={() => setActiveSection('create')}>
-                Create Exam
-              </button>
+              <a className="nav-link text-white" href="#create">Create Exam</a>
             </li>
             <li className="nav-item">
-              <button className="nav-link btn btn-link text-white" onClick={() => setActiveSection('view')}>
-                View Exams
-              </button>
+              <a className="nav-link text-white" href="#view">View Exams</a>
             </li>
-            <li className="nav-item">
-              <button className="nav-link btn btn-link text-white" onClick={() => setActiveSection('grades')}>
-                View Grades
-              </button>
-            </li>
+            {selectedExamId && (
+              <li className="nav-item">
+                <a className="nav-link text-white" href="#questions">Add Questions</a>
+              </li>
+            )}
           </ul>
         </nav>
 
         {/* Main Content */}
         <main className="col-md-9 ms-sm-auto col-lg-10" style={mainContentStyle}>
-          {activeSection === 'create' && (
-            <>
-              {!currentExam ? (
-                <>
-                  <h4>Add Exam</h4>
-                  <form onSubmit={handleCreateExam}>
-                    <div className="mb-3">
-                      <label>Exam Name</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={examName}
-                        onChange={(e) => setExamName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <button type="submit" className="btn btn-primary">Create Exam</button>
-                  </form>
-                </>
+          {/* Create Exam */}
+          <section id="create" className="mb-5">
+            <h2>Create Exam</h2>
+            <div className="input-group mb-3">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Exam Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <button className="btn btn-primary" onClick={handleCreateExam}>Create</button>
+            </div>
+          </section>
+
+          {/* List Exams */}
+          <section id="view" className="mb-5">
+            <h2>Your Exams</h2>
+            {exams.length === 0 ? (
+              <p>No exams created yet.</p>
+            ) : (
+              <div className="list-group">
+                {exams.map((exam) => (
+                  <button
+                    key={exam.id}
+                    className="list-group-item list-group-item-action"
+                    onClick={() => setSelectedExamId(exam.id)}
+                  >
+                    {exam.title}
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Questions for Selected Exam */}
+          {selectedExamId && (
+            <section id="questions">
+              <h2>Questions for Exam ID: {selectedExamId}</h2>
+              {questions.length === 0 ? (
+                <p>No questions added yet.</p>
               ) : (
-                <>
-                  <h4>Exam: {currentExam.examName}</h4>
-                  <form onSubmit={handleAddQuestion}>
-                    <div className="mb-3">
-                      <label>Question</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="question"
-                        value={questionForm.question}
-                        onChange={handleQuestionChange}
-                        required
-                      />
-                    </div>
-
-                    {['A', 'B', 'C', 'D'].map(opt => (
-                      <div className="mb-3" key={opt}>
-                        <label>Option {opt}</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          name={`option${opt}`}
-                          value={questionForm[`option${opt}`]}
-                          onChange={handleQuestionChange}
-                          required
-                        />
-                      </div>
-                    ))}
-
-                    <div className="mb-3">
-                      <label>Correct Answer</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="correctAnswer"
-                        value={questionForm.correctAnswer}
-                        onChange={handleQuestionChange}
-                        required
-                      />
-                    </div>
-
-                    <button type="submit" className="btn btn-success me-2">Add Question</button>
-                    <button type="button" className="btn btn-warning" onClick={handleEndExam}>
-                      End Exam
-                    </button>
-                  </form>
-
-                  <hr />
-                  <h5>Questions Added</h5>
-                  {currentExam.questions.length === 0 ? (
-                    <p>No questions added yet.</p>
-                  ) : (
-                    <ul className="list-group">
-                      {currentExam.questions.map((q, i) => (
-                        <li className="list-group-item" key={i}>
-                          {i + 1}. {q.question}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              )}
-            </>
-          )}
-
-          {activeSection === 'view' && (
-            <>
-              <h4>View Exams</h4>
-              {exams.length === 0 ? (
-                <p>No exams created yet.</p>
-              ) : (
-                <div className="list-group mb-4">
-                  {exams.map((exam, index) => (
-                    <button
-                      key={index}
-                      className="list-group-item list-group-item-action"
-                      onClick={() => setSelectedExamView(exam)}
-                    >
-                      {exam.examName}
-                    </button>
+                <ul className="list-group mb-3">
+                  {questions.map((q) => (
+                    <li className="list-group-item" key={q.id}>
+                      {q.questionText} <span className="badge bg-success">Correct: {q.correctAnswer}</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
 
-              {selectedExamView && (
-                <>
-                  <h5>Questions in "{selectedExamView.examName}"</h5>
-                  {selectedExamView.questions.length === 0 ? (
-                    <p>No questions added for this exam.</p>
-                  ) : (
-                    <table className="table table-bordered table-striped">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Question</th>
-                          <th>Option A</th>
-                          <th>Option B</th>
-                          <th>Option C</th>
-                          <th>Option D</th>
-                          <th>Correct</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selectedExamView.questions.map((q, idx) => (
-                          <tr key={idx}>
-                            <td>{idx + 1}</td>
-                            <td>{q.question}</td>
-                            <td>{q.optionA}</td>
-                            <td>{q.optionB}</td>
-                            <td>{q.optionC}</td>
-                            <td>{q.optionD}</td>
-                            <td>{q.correctAnswer}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </>
-              )}
-            </>
-          )}
-
-          {activeSection === 'grades' && (
-            <>
-              <h4>Student Grades</h4>
-              <p>This is a placeholder. Connect this to the backend later.</p>
-            </>
+              <h3>Add Question</h3>
+              <div className="mb-2">
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Question Text"
+                  value={questionText}
+                  onChange={(e) => setQuestionText(e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Option A"
+                  value={optionA}
+                  onChange={(e) => setOptionA(e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Option B"
+                  value={optionB}
+                  onChange={(e) => setOptionB(e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Option C"
+                  value={optionC}
+                  onChange={(e) => setOptionC(e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Option D"
+                  value={optionD}
+                  onChange={(e) => setOptionD(e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="form-control mb-3"
+                  placeholder="Correct Answer"
+                  value={correctAnswer}
+                  onChange={(e) => setCorrectAnswer(e.target.value)}
+                />
+                <button className="btn btn-success" onClick={handleAddQuestion}>Add Question</button>
+              </div>
+            </section>
           )}
         </main>
       </div>
     </div>
   );
 }
-
-export default TeacherDashBoard;
