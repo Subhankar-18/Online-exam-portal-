@@ -7,6 +7,7 @@ import TeacherPage from './TeacherPage';
 import CoursePage from './CoursePage';
 import TeacherDashBoard from './TeacherDashBoard';
 import StudentDashboard from "./StudentDashboard";
+import Logout from "./logout";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/teacherdashboard" element={<TeacherDashBoard />}/>
         <Route path="/studentdashboard" element={<StudentDashboard />}/>
+        <Route path="/logout" element={<Logout />} />
       </Routes>
     </Router>
   );

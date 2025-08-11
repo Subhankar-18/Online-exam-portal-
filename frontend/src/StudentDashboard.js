@@ -1,50 +1,32 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function StudentDashboard() {
-  const studentId = 102; // Replace with actual logged-in student ID
-  const exam_id = 1;
+  const studentId = 301; 
+  const exam_id = 12; 
   const backendURL = "http://localhost:8081/api/student/exams";
-
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("view");
-  const [exams, setExams] = useState([]);
   const [selectedExam, setSelectedExam] = useState(null);
   const [answers, setAnswers] = useState({});
-  const [marks, setMarks] = useState([]);
 
-  // Fetch all available exams for the student
   useEffect(() => {
-    if (activeSection === "view") {
+    if (activeSection === "view" && !selectedExam) {
       axios
-        .get(`${backendURL}/${exam_id}`)
-        .then(res => setExams(res.data))
-        .catch(err => console.error("Error fetching exams:", err));
+        .get(`${backendURL}/${exam_id}/questions`)
+        .then(res => {
+          setSelectedExam({
+            id: exam_id,
+            title: `Exam ${exam_id}`,
+            questions: res.data
+          });
+          setAnswers({});
+        })
+        .catch(err => console.error("Error fetching questions:", err));
     }
-  }, [activeSection]);
+  }, [activeSection, selectedExam]);
 
-  // Fetch marks for the student
-  useEffect(() => {
-    if (activeSection === "marks") {
-      axios
-        .get(`${backendURL}/marks/${exam_id}`)
-        .then(res => setMarks(res.data))
-        .catch(err => console.error("Error fetching marks:", err));
-    }
-  }, [activeSection]);
-
-  // Handle selecting an exam
-  const handleSelectExam = (exam) => {
-    axios
-      .get(`${backendURL}/questions/${exam_id}`)
-      .then(res => {
-        setSelectedExam({ ...exam, questions: res.data });
-        setAnswers({});
-      })
-      .catch(err => console.error("Error fetching questions:", err));
-  };
-
-  // Handle selecting an answer
   const handleAnswerChange = (questionId, option) => {
     setAnswers(prev => ({
       ...prev,
@@ -52,44 +34,47 @@ export default function StudentDashboard() {
     }));
   };
 
-  // Submit exam
   const handleSubmitExam = () => {
     const payload = {
       studentId,
       examId: selectedExam.id,
-      answers
+      answers: selectedExam.questions.map(q => ({
+        questionId: q.id,
+        answer: answers[q.id] || ""
+      }))
     };
+
     axios
       .post(`${backendURL}/submit`, payload)
-      .then(() => {
-        alert("Exam submitted successfully!");
-        setSelectedExam(null);
-        setActiveSection("view");
+      .then(res => {
+        alert(`Exam submitted! You scored ${res.data.score}/${res.data.totalQuestions}`);
+
       })
       .catch(err => console.error("Error submitting exam:", err));
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     alert("Logged out successfully!");
-    // TODO: Implement actual logout
+    navigate("/");
   };
 
   const sidebarStyle = {
-    backgroundColor: "#FF1493", // Neon pink
+    backgroundColor: "#FF1493",
     minHeight: "100vh",
     padding: "1rem",
     color: "white"
   };
 
   const mainContentStyle = {
-    backgroundColor: "#FFC0CB", // Baby pink
+    backgroundColor: "#FFC0CB",
     minHeight: "100vh",
     padding: "2rem"
   };
 
   return (
     <div className="container-fluid">
-      {/* Top Navbar */}
       <nav className="navbar navbar-expand-lg" style={{ backgroundColor: '#000' }}>
         <div className="container-fluid">
           <span className="navbar-brand text-white">Hello Student!</span>
@@ -98,67 +83,27 @@ export default function StudentDashboard() {
       </nav>
 
       <div className="row g-0">
-        {/* Sidebar */}
         <nav className="col-md-3 col-lg-2" style={sidebarStyle}>
           <ul className="nav flex-column">
             <li className="nav-item">
               <button
                 className="nav-link btn btn-link text-white"
-                onClick={() => {
-                  setActiveSection("view");
-                  setSelectedExam(null);
-                }}
+                onClick={() => setActiveSection("view")}
               >
-                View Exams
-              </button>
-            </li>
-            <li className="nav-item">
-              <button
-                className="nav-link btn btn-link text-white"
-                onClick={() => {
-                  setActiveSection("marks");
-                  setSelectedExam(null);
-                }}
-              >
-                View Marks
+                View Exam
               </button>
             </li>
           </ul>
         </nav>
 
-        {/* Main Content */}
         <main className="col-md-9 ms-sm-auto col-lg-10" style={mainContentStyle}>
-          {activeSection === "view" && !selectedExam && (
-            <>
-              <h4>Available Exams</h4>
-              {/* Corrected: Added a check for Array.isArray(exams) */}
-              {Array.isArray(exams) && exams.length > 0 ? (
-                <div className="list-group">
-                  {exams.map((exam, index) => (
-                    <button
-                      key={index}
-                      className="list-group-item list-group-item-action"
-                      onClick={() => handleSelectExam(exam)}
-                    >
-                      {exam.title}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <p>No exams available right now.</p>
-              )}
-            </>
-          )}
-
           {activeSection === "view" && selectedExam && (
             <>
               <h4>{selectedExam.title}</h4>
               {selectedExam.questions.map((q, idx) => (
                 <div key={q.id} className="card mb-3">
                   <div className="card-body">
-                    <h5 className="card-title">
-                      {idx + 1}. {q.questionText}
-                    </h5>
+                    <h5 className="card-title">{idx + 1}. {q.questionText}</h5>
                     {["A", "B", "C", "D"].map(opt => (
                       <div key={opt} className="form-check">
                         <input
@@ -178,36 +123,7 @@ export default function StudentDashboard() {
                   </div>
                 </div>
               ))}
-              <button className="btn btn-success" onClick={handleSubmitExam}>
-                Submit Exam
-              </button>
-            </>
-          )}
-
-          {activeSection === "marks" && (
-            <>
-              <h4>Your Marks</h4>
-              {/* Corrected: Added a check for Array.isArray(marks) */}
-              {Array.isArray(marks) && marks.length > 0 ? (
-                <table className="table table-bordered table-striped">
-                  <thead>
-                    <tr>
-                      <th>Exam</th>
-                      <th>Marks</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {marks.map((m, idx) => (
-                      <tr key={idx}>
-                        <td>{m.examTitle}</td>
-                        <td>{m.score}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p>No marks available yet.</p>
-              )}
+              <button className="btn btn-success" onClick={handleSubmitExam}>Submit Exam</button>
             </>
           )}
         </main>

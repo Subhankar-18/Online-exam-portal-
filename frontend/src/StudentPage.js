@@ -7,7 +7,6 @@ const [studentsByCourse, setStudentsByCourse] = useState({});
 const [newStudent, setNewStudent] = useState({ name: '', email: '', course: '' });
 const [editMode, setEditMode] = useState({});
 
-  // Fetch students grouped by course
 const fetchStudents = async () => {
     const res = await axios.get('http://localhost:8081/api/students/by-course');
     setStudentsByCourse(res.data);

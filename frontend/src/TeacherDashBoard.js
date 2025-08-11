@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function TeacherDashboard() {
-  const [teacherId, setTeacherId] = useState(501); // Replace with actual logged-in teacher's ID
-  const [title, setTitle] = useState("");
+  const [teacherId, setTeacherId] = useState(501);
+  const navigate = useNavigate();
   const [exams, setExams] = useState([]);
   const [selectedExamId, setSelectedExamId] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -74,8 +75,10 @@ export default function TeacherDashboard() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     alert("Logged out successfully!");
-    // TODO: Implement logout functionality
+    navigate("/");
   };
 
   const sidebarStyle = {

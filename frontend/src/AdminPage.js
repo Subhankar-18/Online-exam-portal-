@@ -1,18 +1,15 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 function AdminPage() {
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      await axios.post('/logout', {}, { withCredentials: true });
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    alert("Logged out successfully!");
+    navigate("/");
   };
 
   const sidebarStyle = {
@@ -86,15 +83,6 @@ function AdminPage() {
                 <h5 className="card-title">Teachers</h5>
                 <p className="card-text">Manage teacher profiles, schedules, and responsibilities.</p>
                 <button className="btn btn-primary" onClick={() => navigate('/teachers')}>Manage Teachers</button>
-              </div>
-            </div>
-
-            {/* Courses Card */}
-            <div className="col-md-4 mb-3">
-              <div className="card p-3">
-                <h5 className="card-title">Courses</h5>
-                <p className="card-text">Add, update, or remove courses available on the platform.</p>
-                <button className="btn btn-primary" onClick={() => navigate('/courses')}>Manage Courses</button>
               </div>
             </div>
           </div>
