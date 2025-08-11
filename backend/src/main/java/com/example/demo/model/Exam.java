@@ -18,7 +18,7 @@ public class Exam {
 
     @ManyToOne
     @JoinColumn(name = "teacher_id")
-    private Teacher teacher;
+    private User teacher;
 
     private LocalDateTime createdAt;
 
